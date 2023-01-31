@@ -1,5 +1,6 @@
 $fs = .2;
 $fa = 2;
+
 module triangle(side, thickness) {
  radius = 2 * side * cos(60);
  x0 = radius * cos(0);
@@ -13,19 +14,24 @@ module triangle(side, thickness) {
  }
 }
 
-board_len = 80;
-board_wid = 50;
-board_thk = 1;
-standoff_hgt = 6;
-standoff_rad = 2.5;
-mnt_hgt = 2.5;
-mnt_rad = 1;
-base_thk = 2;
-base_side = 170;
+board_len    =  80;
+board_wid    =  50;
+board_thk    =   1;
+standoff_hgt =   6;
+standoff_rad =   2.5;
+mnt_hgt      =   2.5;
+mnt_rad      =   1;
+base_thk     =   2;
+base_side    = 170;
 
-servo_cc =  38;
+servo_cc  = 38;
 servo_wid = 12;
 trim_side = servo_cc + servo_wid;
+
+hole_x_sep   = 22;
+hole_y_sep   = 10;
+hole_rad     =  1.9;
+hole_setback = 17;
 
 module servos(x) {
     translate([x, 30,board_thk]) cube([20, 12,25]);
@@ -41,8 +47,6 @@ module standoff(x,y) {
 
 module arduino() {
     translate([-40,-25,0]) {
-  //      translate([0,0,standoff_hgt]) 
-  //         cube([board_len,board_wid,board_thk]);
         standoff(3,11);             // ok
         standoff(3,board_wid-11);   // 31 ok
         standoff(board_len-3,board_wid-3); // 33 -> 44
@@ -62,6 +66,3 @@ difference() {
     triangle(trim_side+1,base_thk+2);
 }
 translate([0,0,base_thk]) color("red") arduino();
-                  //color("green") servos(74.3);
-//rotate([0,0,120]) color("green") servos(74.3);
-//rotate([0,0,240]) color("green") servos(74.3);
