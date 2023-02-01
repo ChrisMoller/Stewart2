@@ -56,13 +56,19 @@ module arduino() {
 
 difference() {
  triangle(base_side,base_thk);
- translate([base_side-trim_side,0,-1]) 
+ translate([base_side-trim_side,0,-1]) {
     triangle(trim_side+1,base_thk+2);
+    translate([-5, -5, -.1]) 
+       cylinder(board_thk + .2, hole_rad, hole_rad);
+ }
  rotate([0,0,120]) 
-    translate([base_side-trim_side,,0,-1]) 
-    triangle(trim_side+1,base_thk+2);
+    translate([base_side-trim_side,,0,-1]) {
+       triangle(trim_side+1,base_thk+2);
+    }
  rotate([0,0,240]) 
-    translate([base_side-trim_side,,0,-1]) 
-    triangle(trim_side+1,base_thk+2);
+    translate([base_side-trim_side,,0,-1]) {
+      triangle(trim_side+1,base_thk+2);
+    }
+ 
 }
 translate([0,0,base_thk]) color("red") arduino();
