@@ -220,7 +220,7 @@ typedef struct {
 } parm_s;
 
 /* A pointer to an unallocated array of the parameters. */
-parm_s *parms = nullptr;
+static parm_s *parms = nullptr;
 int *plut = nullptr;
 
 // functions and subroutines
@@ -246,6 +246,7 @@ static void showVector (const char *title, BLA::Matrix<4> & mx)
 		  String (mx (3)) + "\t");
 }
 
+static int ycnt = 0;
 static void update_alpha()
 {
   const double mdx    = 0.825;
@@ -262,6 +263,13 @@ static void update_alpha()
   double roll   = parms[plut[PARM_proll]].val;
   double yaw    = parms[plut[PARM_proll]].val;
 
+Serial.println("pos " + String(ycnt++) + " "
+    + String(dx) + " "
+    + String(dy) + " "
+    + String(dz) + " "
+    + String(pitch) + " "
+    + String(roll) + " "
+    + String(yaw));
   BLA::Matrix<4,4> pRot = rotatePitch (D2R (pitch));
   BLA::Matrix<4,4> rRot = rotateRoll (D2R (roll));
   BLA::Matrix<4,4> yRot = rotateYaw (D2R (yaw));
@@ -312,13 +320,18 @@ static void update_alpha()
       //      break;
     }
     else {
-      alpha[i] = R2D(alphaX);
-      //      const double slope = -180.0 / 133.0;
-      //      alpha[i] = (slope * (alpha[i] + 43.0)) + 180;
+      alpha[i] = R2D(alphaX - M_PI_4);
+      if (alpha[i] < 0) alpha[i] = 0;
+      else if (alpha[i] > 180) alpha[i] = 180;
       if (0 == (i & 1)) alpha[i] = 180.0 - alpha[i];
       myServo[i].write( alpha[i]);
     }
   }
+
+  for (int i = 0; i < 6; i++) {
+    Serial.print(String(alpha[i]) + " ");
+  }
+Serial.println  ("");
 }
 
 
@@ -1065,7 +1078,6 @@ enum {
 #define TO_US(s) ((unsigned int)((s) * 1000000))
 int jitter_mode = JITTER_ONSET;
 
-static int cnt = 0;
 static void do_demo()
 {
 #define SETPOS 90
@@ -1263,7 +1275,6 @@ void loop() {
 		    }
 		    else {
 		      String startString = "demoState=";
-          Serial.println(currentLine);
 		      int startPos = currentLine.indexOf(startString);
 		      if (-1 != startPos) {	// if it's a dem req
 			      int demoit = currentLine.indexOf("norm");
