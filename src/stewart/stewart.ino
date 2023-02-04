@@ -24,9 +24,41 @@ Javascript being served to the browser.
 
 /*** platform description ***/
 
-#define ARM_LENGTH	 2.0
-#define LEG_LENGTH	 9.0
+#define ARM_LENGTH	 1.6
+#define LEG_LENGTH	 13.4
 
+#if 1
+// Servo locations
+
+#define B0x 12.50
+#define B0y 4.55
+#define B1x 12.50
+#define B1y -4.55
+#define B2x -2.31
+#define B2y -13.10
+#define B3x -10.19
+#define B3y -8.55
+#define B4x -10.19
+#define B4y 8.55
+#define B5x -2.31
+#define B5y 13.10
+
+
+// Anchor locations
+
+#define P0x 10.33
+#define P0y 4.82
+#define P1x 10.33
+#define P1y -4.82
+#define P2x -0.99
+#define P2y -11.36
+#define P3x -9.34
+#define P3y -6.54
+#define P4x -9.34
+#define P4y 6.54
+#define P5x -0.99
+#define P5y 11.36
+#else
 // locations of anchors wrt to platform plane
 #define P0x -1.430
 #define P0y  0.976
@@ -54,6 +86,7 @@ Javascript being served to the browser.
 #define B4y  3.37396
 #define B5x  0.441194
 #define B5y  5.98376
+#endif
 
 // structs and classes
 
@@ -229,21 +262,6 @@ static void update_alpha()
   double roll   = parms[plut[PARM_proll]].val;
   double yaw    = parms[plut[PARM_proll]].val;
 
-#if 0
-  dx    = mdx    * (dx    +  2) -  2.2;
-  dy    = mdy    * (dy    +  2) -  1.5;
-  dz    = mdz    * (dz    +  2) -  0.5;
-  pitch = mpitch * (pitch + 90) -  70.3;
-  roll  = mroll  * (roll  + 90) -  59.3;
-  yaw   = myaw   * (yaw   + 90) - 191.5;
-
-  Serial.print (String (dx) + "\t");
-  Serial.print (String (dy) + "\t");
-  Serial.print (String (dz) + "\t");
-  Serial.print (String (pitch) + "\t");
-  Serial.print (String (roll) + "\t");
-  Serial.println (String (yaw) + "\t");
-#endif
   BLA::Matrix<4,4> pRot = rotatePitch (D2R (pitch));
   BLA::Matrix<4,4> rRot = rotateRoll (D2R (roll));
   BLA::Matrix<4,4> yRot = rotateYaw (D2R (yaw));
@@ -270,10 +288,6 @@ static void update_alpha()
                         0.0,
                         1.0};
     BLA::Matrix<4> deltaPB = P - B;
-#ifdef LOG_SERVO
-    showVector ("P1", P1);
-    showVector ("B", B);
-#endif
     
     // Eq 9
     double beta = (i & 1) ? (M_PI/6.0) : (-M_PI/6.0);
@@ -293,61 +307,6 @@ static void update_alpha()
     double alphaX = asin (arg) - atan2 (N, M);
     
 
-    /***
-	-2    ==> -43
-	 0.02 ==> 20
-         2    ==>  90
-
-           x1   y1    x2  y2
-	 [-43, 180], [90, 0]
-
-	 m = (y2 - y1) /(x2 - x1)
-
-	 y - y1 = m (x - x1)
-	 y = m (x - x1) + y1
-	 
-    ***/
-
-
-    /***
-i	beta	l	 L	   M	   N	arg      ax    a[i]
-0       -0.52   9.22    8.07    32.65   -17.03  0.22    40.21   40.21
-
-
-
-i al ll         l         L        M        N
-0 2  9          8.55039 -3.89078 25.2177 -22.9401
-     ***/
-    
-    //#define LOG_SERVO
-#ifdef LOG_SERVO
-#if 0
-      Serial.print (String (i) + "\t");
-      Serial.print (String (beta) + "\t");
-      Serial.print (String (l) + "\t");
-      Serial.print (String (L) + "\t");
-      Serial.print (String (M) + "\t");
-      Serial.print (String (N) + "\t");
-#endif
-      Serial.print (String (arg) + "\t");
-      Serial.print (String (R2D (alphaX)) + "\t");
-      Serial.println ("");
-#endif
-
-      /***
-	      y1    y2      x1      x2     m
-	  dx -2.2   1.1    -2       2    1.2
-	  dy -1.5   2.5    -2       2    1.0
-	  dz -0.6   2.01   -2       2    1.53
-	  pi -59.3  59     -90      90   1.52
-	  ro -70.3  75     -90      90   1.24
-	  ya -100.5 101    -90      90   0.89
-
-	  m = (y2 - y1) / (x2 - x1)
-	  y - y1 = m(x - x1)
-	  y = m(x - x1) + y1
-       ***/
-      
     if (isnan (alphaX)) {
       is_valid = false;
       //      break;
@@ -357,39 +316,9 @@ i al ll         l         L        M        N
       //      const double slope = -180.0 / 133.0;
       //      alpha[i] = (slope * (alpha[i] + 43.0)) + 180;
       if (0 == (i & 1)) alpha[i] = 180.0 - alpha[i];
-#if 0
-      alpha[i] = 0.0;
-#endif
-//#undef  LOG_SERVO
-            Serial.println (alpha[i]);
       myServo[i].write( alpha[i]);
-#ifdef LOG_SERVO
-      // Serial.println (String (alpha[i]) + "\n");
-      Serial.print ("\t");
-      Serial.print (String (alpha[i]) + "\t");
-      Serial.print (String (parms[plut[PARM_pdx]].val) + "\t");
-      Serial.print (String (parms[plut[PARM_pdx]].val) + "\t");
-      Serial.print (String (parms[plut[PARM_pdy]].val) + "\t");
-      Serial.print (String (parms[plut[PARM_pdz]].val) + "\t");
-      Serial.print (String (parms[plut[PARM_ppitch]].val) + "\t");
-      Serial.print (String (parms[plut[PARM_proll]].val) + "\t");
-      Serial.print (String (parms[plut[PARM_pyaw]].val) + "\t");
-      Serial.println ("");
-#endif
     }
   }
-#ifdef LOG_SERVO
-  Serial.println ("");
-#endif
-#if 0
-  Serial.println ("sync:" +
-		  String (alpha[0]) + "\t" +
-		  String (alpha[1]) + "\t" +
-		  String (alpha[2]) + "\t" +
-		  String (alpha[3]) + "\t" +
-		  String (alpha[4]) + "\t" +
-		  String (alpha[5]));
-#endif
 }
 
 
@@ -411,7 +340,8 @@ char pass[] = SECRET_PASS;    // your network password
 /* holds th local ip address.  not sure i need it... */
 IPAddress ip;
 
-bool run = false;
+bool run  = true;
+bool demo = true;
 
 /*****
       One of my rules is to never enter the same information more than once
@@ -987,6 +917,23 @@ onclick=\"scriptClick(this);\" \
   client.println (F("XHR.send();"));
   client.println (F("}"));
 
+  client.println (F("function demoNormScript(el) {"));
+  client.println (F("  const XHR = new XMLHttpRequest();"));
+  client.println (F("  var text"));
+  client.println (F("  if (demoNormButton.value === \"Demo\") {"));
+  client.println (F("     demoNormButton.value = 'Norm';"));
+  client.println (F("     document.getElementById(\"demoNormButton\").style.backgroundColor = \"red\";"));
+  client.println ("       text = window.location.origin + \"?demoState=norm\";");
+  client.println (F("  } else {"));
+  client.println (F("     demoNormButton.value = 'Demo';"));
+  client.println (F("     document.getElementById(\"demoNormButton\").style.backgroundColor = \"green\";"));
+  client.println ("       text = window.location.origin + \"?demoState=demo\";");
+  client.println (F("  }"));
+  client.println (F("XHR.open('POST', text);"));
+  client.println (F("XHR.setRequestHeader('Content-Type', 'text/plain');"));
+  client.println (F("XHR.send();"));
+  client.println (F("}"));
+
 client.println (F("</script>"));
 
 /****** delete script button ********/
@@ -1000,6 +947,12 @@ value=\"Select\">"));
   client.println (F("<input id=\"runStopButton\" type=\"button\" \
 onclick=\"runStopScript(this);\" class=\"rsbutton\" \
 value=\"Run\">"));
+
+/****** demo/norm button ********/
+
+  client.println (F("<input id=\"demoNormButton\" type=\"button\" \
+onclick=\"demoNormScript(this);\" class=\"rsbutton\" \
+value=\"Norm\">"));
 
   client.println (F("</div>"));
   
@@ -1112,6 +1065,29 @@ enum {
 #define TO_US(s) ((unsigned int)((s) * 1000000))
 int jitter_mode = JITTER_ONSET;
 
+static int cnt = 0;
+static void do_demo()
+{
+#define SETPOS 90
+  static int pos[]   = {SETPOS, SETPOS, SETPOS, SETPOS, SETPOS, SETPOS};
+  static int incr[] = {1, 3, 2, 4, -2, -4};
+
+  for (int i = 0; i < NUM_SERVOS; i++) {
+    
+    pos [i] += incr[i];
+    if (pos[i] < 0) {
+      incr[i] = -incr[i];
+      pos[i] = -pos[i];
+    }
+    else if (pos[i] > 180) {
+      incr[i] = -incr[i];
+      pos[i] = 360 - pos[i];
+    }
+    // Serial.println(String(i) + "  " + String(pos[i]));    
+    myServo[i].write((i&1) ? pos[i] : 180-pos[i]);
+  }
+  delay(30);
+}
 
 static void do_jitter()
 {
@@ -1285,6 +1261,15 @@ void loop() {
 		      int stopit = currentLine.indexOf("stop");
 		      run = (-1 == stopit) ? true : false;
 		    }
+		    else {
+		      String startString = "demoState=";
+          Serial.println(currentLine);
+		      int startPos = currentLine.indexOf(startString);
+		      if (-1 != startPos) {	// if it's a dem req
+			      int demoit = currentLine.indexOf("norm");
+			      demo = (-1 == demoit) ? true : false;
+		      }
+		    }
 		  }
 		}
 	      }			// end not update
@@ -1301,7 +1286,8 @@ void loop() {
   }				// if client
 
   if (run) {
-    do_jitter ();
+    if (demo) do_demo ();
+    else do_jitter ();
   }
 }				// end of loop
 

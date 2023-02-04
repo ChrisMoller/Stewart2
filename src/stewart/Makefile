@@ -1,5 +1,6 @@
-BOARDNAME=arduino:samd:mkrwifi1010
-     PORT=/dev/ttyACM0
+BOARDNAME = arduino:samd:mkrwifi1010
+     PORT = /dev/tty`ls -l /dev/serial/by-id | grep Arduino | sed -e's/.*tty//'`
+#     PORT=/dev/ttyACM0
 #    PORT=/dev/ttyS4
 
 
@@ -21,6 +22,9 @@ preproc:
 
 jc:
 	arduino-cli compile --fqbn $(BOARDNAME) .
+
+debug:
+	arduino-cli debug --fqbn $(BOARDNAME) .
 
 vis: vis.cpp
 	gcc -g -o $@ $<
