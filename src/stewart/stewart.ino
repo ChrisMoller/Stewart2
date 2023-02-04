@@ -249,30 +249,25 @@ static void showVector (const char *title, BLA::Matrix<4> & mx)
 static int ycnt = 0;
 static void update_alpha()
 {
+#if 0
   const double mdx    = 0.825;
   const double mdy    = 1.000;
   const double mdz    = 0.653;
   const double mpitch = 0.657;
   const double mroll  = 0.835;
   const double myaw   = 1.119;
-
+#endif
   double dx     = parms[plut[PARM_pdx]].val;
   double dy     = parms[plut[PARM_pdy]].val;
   double dz     = parms[plut[PARM_pdz]].val;
   double pitch  = parms[plut[PARM_ppitch]].val;
   double roll   = parms[plut[PARM_proll]].val;
-  double yaw    = parms[plut[PARM_proll]].val;
+  double yaw    = parms[plut[PARM_pyaw]].val;
 
-Serial.println("pos " + String(ycnt++) + " "
-    + String(dx) + " "
-    + String(dy) + " "
-    + String(dz) + " "
-    + String(pitch) + " "
-    + String(roll) + " "
-    + String(yaw));
   BLA::Matrix<4,4> pRot = rotatePitch (D2R (pitch));
   BLA::Matrix<4,4> rRot = rotateRoll (D2R (roll));
   BLA::Matrix<4,4> yRot = rotateYaw (D2R (yaw));
+  showMatrix("yaw", yRot);
   BLA::Matrix<4,4> cRot = pRot * rRot * yRot;
   double kdz = (dz + h0) - 1.9;
   BLA::Matrix<4> P0 = {dx, dy, kdz, 1.0};
