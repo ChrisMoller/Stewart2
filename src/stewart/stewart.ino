@@ -27,7 +27,6 @@ Javascript being served to the browser.
 #define ARM_LENGTH	 1.6
 #define LEG_LENGTH	 13.4
 
-#if 1
 // Servo locations
 
 #define B0x 12.50
@@ -58,35 +57,7 @@ Javascript being served to the browser.
 #define P4y 6.54
 #define P5x -0.99
 #define P5y 11.36
-#else
-// locations of anchors wrt to platform plane
-#define P0x -1.430
-#define P0y  0.976
-#define P1x -1.432
-#define P1y -1.000
-#define P2x -0.137
-#define P2y -1.743
-#define P3x  1.577
-#define P3y -0.752
-#define P4x  1.582
-#define P4y  0.740
-#define P5x -0.130
-#define P5y  1.726
 
-// locations of servos wrt base
-#define B0x -5.40268
-#define B0y  2.60979
-#define B1x -5.40268
-#define B1y -2.60979
-#define B2x  0.441194
-#define B2y -5.98376
-#define B3x  4.96149
-#define B3y -3.37396
-#define B4x  4.96149
-#define B4y  3.37396
-#define B5x  0.441194
-#define B5y  5.98376
-#endif
 
 // structs and classes
 
@@ -249,14 +220,6 @@ static void showVector (const char *title, BLA::Matrix<4> & mx)
 static int ycnt = 0;
 static void update_alpha()
 {
-#if 0
-  const double mdx    = 0.825;
-  const double mdy    = 1.000;
-  const double mdz    = 0.653;
-  const double mpitch = 0.657;
-  const double mroll  = 0.835;
-  const double myaw   = 1.119;
-#endif
   double dx     = parms[plut[PARM_pdx]].val;
   double dy     = parms[plut[PARM_pdy]].val;
   double dz     = parms[plut[PARM_pdz]].val;
@@ -267,7 +230,6 @@ static void update_alpha()
   BLA::Matrix<4,4> pRot = rotatePitch (D2R (pitch));
   BLA::Matrix<4,4> rRot = rotateRoll (D2R (roll));
   BLA::Matrix<4,4> yRot = rotateYaw (D2R (yaw));
-  showMatrix("yaw", yRot);
   BLA::Matrix<4,4> cRot = pRot * rRot * yRot;
   double kdz = (dz + h0) - 1.9;
   BLA::Matrix<4> P0 = {dx, dy, kdz, 1.0};
@@ -307,8 +269,7 @@ static void update_alpha()
       (deltaPB(0) * cos (beta) + deltaPB(1) * sin (beta));
     N = -fabs (N);
     double arg = L / sqrt ((M * M) + (N * N));
-    double alphaX = asin (arg) - atan2 (N, M);
-    
+    double alphaX = asin (arg) - atan2 (N, M);    
 
     if (isnan (alphaX)) {
       is_valid = false;
@@ -322,11 +283,6 @@ static void update_alpha()
       myServo[i].write( alpha[i]);
     }
   }
-
-  for (int i = 0; i < 6; i++) {
-    Serial.print(String(alpha[i]) + " ");
-  }
-Serial.println  ("");
 }
 
 
