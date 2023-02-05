@@ -29,34 +29,35 @@ Javascript being served to the browser.
 
 // Servo locations
 
-#define B0x 12.50
-#define B0y 4.55
-#define B1x 12.50
-#define B1y -4.55
-#define B2x -2.31
-#define B2y -13.10
-#define B3x -10.19
-#define B3y -8.55
-#define B4x -10.19
-#define B4y 8.55
-#define B5x -2.31
-#define B5y 13.10
+#define B0x 9.66
+#define B0y 2.59
+#define B1x 9.66
+#define B1y -2.59
+#define B2x -2.59
+#define B2y -9.66
+#define B3x -7.07
+#define B3y -7.07
+#define B4x -7.07
+#define B4y 7.07
+#define B5x -2.59
+#define B5y 9.66
 
 
 // Anchor locations
 
-#define P0x 10.33
-#define P0y 4.82
-#define P1x 10.33
-#define P1y -4.82
-#define P2x -0.99
-#define P2y -11.36
-#define P3x -9.34
-#define P3y -6.54
-#define P4x -9.34
-#define P4y 6.54
-#define P5x -0.99
-#define P5y 11.36
+#define P0x 9.18
+#define P0y 5.30
+#define P1x 9.18
+#define P1y -5.30
+#define P2x 0.00
+#define P2y -10.60
+#define P3x -9.18
+#define P3y -5.30
+#define P4x -9.18
+#define P4y 5.30
+#define P5x 0.00
+#define P5y 10.60
+
 
 
 // structs and classes
@@ -304,8 +305,8 @@ char pass[] = SECRET_PASS;    // your network password
 /* holds th local ip address.  not sure i need it... */
 IPAddress ip;
 
-bool run  = true;
-bool demo = true;
+bool run  = false;
+bool demo = false;
 
 /*****
       One of my rules is to never enter the same information more than once
@@ -1023,7 +1024,8 @@ enum {
   JITTER_QUIET,
   JITTER_ONSET,
   JITTER_ONSET_CONTINUE,
-  JITTER_RELAX
+  JITTER_RELAX,
+  JITTER_INTERVAL
 };
 
 #define TO_US(s) ((unsigned int)((s) * 1000000))
@@ -1071,8 +1073,10 @@ static void do_jitter()
   
   switch (jitter_mode) {
   case JITTER_QUIET:		// do nothing
+    Serial.println ("jitter quiet");
     break;
   case JITTER_ONSET:
+    Serial.println ("jitter onset");
     base_dx = parms[plut[PARM_pdx]].val;
     base_dy = parms[plut[PARM_pdy]].val;
     base_dz = parms[plut[PARM_pdz]].val;
@@ -1094,8 +1098,10 @@ static void do_jitter()
     target_ay *= parms[plut[PARM_jyaw]].val;
     attack_stage = 0.0;
     jitter_mode = JITTER_ONSET_CONTINUE;
+    sleep_time = TO_US(parms[plut[PARM_onset]].val) / 10;
     //break;					no break
   case JITTER_ONSET_CONTINUE:
+    Serial.println ("jitter continue " + String (attack_stage));
     if (attack_stage < 10.0) {
       parms[plut[PARM_pdx]].val    = base_dx + target_dx * attack_stage / 10.0;
       parms[plut[PARM_pdy]].val    = base_dy + target_dy * attack_stage / 10.0; 
@@ -1105,9 +1111,13 @@ static void do_jitter()
       parms[plut[PARM_proll]].val  = base_ar + target_ar * attack_stage / 10.0; 
       attack_stage += 0.2;
     }
-    else jitter_mode = JITTER_RELAX;
+    else {
+      jitter_mode = JITTER_RELAX;
+      sleep_time = TO_US(parms[plut[PARM_relax]].val) / 10;
+    }
     break;
   case JITTER_RELAX:
+    Serial.println ("jitter relax " + String (attack_stage));
     if (attack_stage > 0.0) {
       parms[plut[PARM_pdx]].val    = target_dx * attack_stage / 10.0;
       parms[plut[PARM_pdy]].val    = target_dy * attack_stage / 10.0; 
@@ -1116,14 +1126,18 @@ static void do_jitter()
       parms[plut[PARM_pyaw]].val   = target_ay * attack_stage / 10.0; 
       parms[plut[PARM_proll]].val  = target_ar * attack_stage / 10.0; 
       attack_stage -= 0.1;
-      sleep_time = TO_US(parms[plut[PARM_relax]].val/10.0);
     }
     else {
-      jitter_mode = JITTER_ONSET;
-      sleep_time = TO_US(parms[plut[PARM_interval]].val);
+      jitter_mode = JITTER_INTERVAL;
     }
     break;
+  case JITTER_INTERVAL:
+    Serial.println ("jitter interval");
+    delayMicroseconds(TO_US(parms[plut[PARM_interval]].val));
+    jitter_mode = JITTER_ONSET;
+    break;
   }
+  Serial.println ("about to update_alpha");
   update_alpha();
   delayMicroseconds(sleep_time);
 }
