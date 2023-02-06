@@ -27,36 +27,40 @@ Javascript being served to the browser.
 #define ARM_LENGTH	 1.6
 #define LEG_LENGTH	 13.4
 
-// Servo locations
 
-#define B0x 9.66
-#define B0y 2.59
-#define B1x 9.66
-#define B1y -2.59
-#define B2x -2.59
-#define B2y -9.66
-#define B3x -7.07
-#define B3y -7.07
-#define B4x -7.07
-#define B4y 7.07
-#define B5x -2.59
-#define B5y 9.66
+
+// Servo locations
+// radius = 10cm, ang = 25deg
+
+#define B0x 9.76
+#define B0y 2.16
+#define B1x 9.76
+#define B1y -2.16
+#define B2x -3.01
+#define B2y -9.54
+#define B3x -6.76
+#define B3y -7.37
+#define B4x -6.76
+#define B4y 7.37
+#define B5x -3.01
+#define B5y 9.54
 
 
 // Anchor locations
+// radius = 10.6cm, ang = 56deg
 
-#define P0x 9.18
-#define P0y 5.30
-#define P1x 9.18
-#define P1y -5.30
-#define P2x 0.00
-#define P2y -10.60
-#define P3x -9.18
-#define P3y -5.30
-#define P4x -9.18
-#define P4y 5.30
-#define P5x 0.00
-#define P5y 10.60
+#define P0x 9.36
+#define P0y 4.98
+#define P1x 9.36
+#define P1y -4.98
+#define P2x -0.37
+#define P2y -10.59
+#define P3x -8.99
+#define P3y -5.62
+#define P4x -8.99
+#define P4y 5.62
+#define P5x -0.37
+#define P5y 10.59
 
 
 
